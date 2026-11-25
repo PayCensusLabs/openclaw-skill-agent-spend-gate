@@ -1,0 +1,12 @@
+name: agent-spend-gate
+version: 1.0.0
+description: Evaluate payment intents against an Agent Spend Policy before money moves - budgets, allowlists, Trust Rank floors, approval thresholds, hash-chained local audit. Never touches funds.
+author: PayCensusLabs
+homepage: https://github.com/PayCensusLabs/openclaw-skill-agent-spend-gate
+skill_file: SKILL.md
+tags:
+  - payments
+  - governance
+  - security
+  - budget
+  - agents
