@@ -4,7 +4,7 @@
 
 Evaluate a payment intent against the user's spend policy, with a local
 hash-chained audit trail. Privacy: everything stays in ~/.paycensus-gate/.
-Never touches funds, never sees keys.
+Read-only policy evaluation; no wallet access.
 
 Usage:
   gate_check.py --init
@@ -54,8 +54,8 @@ DEFAULT_POLICY = {
         }
     ],
     "thresholds": {"autoApproveBelow": 0.01, "requireApprovalAbove": 1.0},
-    "keys": {"paymentSign": {"source": "raw-key",
-                             "note": "your wallet signs; the gate never sees keys"}},
+    "keys": {"paymentSign": {"source": "external",
+                             "note": "signing happens in your wallet, outside this policy check"}},
     "audit": {"chain": "hashlinked", "retention": "7y"}
 }
 

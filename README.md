@@ -5,9 +5,9 @@ moves, the gate evaluates the intent against your Agent Spend Policy (ASPL
 v0.1) — and writes every decision to a tamper-evident, hash-chained audit
 trail kept **entirely on your machine**.
 
-**Never touches funds. Never sees keys.** When the gate says "proceed", your
-agent signs with its own key through whatever wallet or payment skill it
-already uses (x402, MPP, Stripe, bank rails — rail-agnostic by design).
+**Read-only, no wallet access.** When the gate says "proceed", signing happens
+in your existing wallet or payment skill (x402, MPP, Stripe, bank rails —
+rail-agnostic by design).
 
 ## What it enforces
 

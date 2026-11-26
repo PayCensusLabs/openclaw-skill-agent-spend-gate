@@ -3,13 +3,13 @@
 
 Evaluates a payment intent against an Agent Spend Policy and appends a
 hash-linked audit event. Policy file is JSON (same fields as the YAML spec
-at https://gate.paycensus.com/spec/). Never touches funds: the caller only
-proceeds when decision.allow is true, then signs with ITS OWN key.
+at https://gate.paycensus.com/spec/). Read-only: the caller proceeds only when
+decision.allow is true; signing happens externally.
 
 Merchant risk (honest tiering):
   - pinned merchants        -> always allowed, no external data needed
   - stablecoin rails        -> Trust Rank score from real settlement behaviour
-                               (/www/wwwroot/paycensus/data/rank.json)
+                               (local cached rank.json from public census)
   - no rank data            -> rejected when a trustRank floor is configured
 
 Decision statuses:
@@ -26,10 +26,11 @@ import time
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
-POLICY_PATH = os.environ.get("GATE_POLICY", "/etc/paycensus/gate_policy.json")
-AUDIT_PATH = os.environ.get("GATE_AUDIT", "/var/lib/paycensus/gate_audit.jsonl")
-APPROVALS_PATH = os.environ.get("GATE_APPROVALS", "/var/lib/paycensus/gate_approvals.json")
-RANK_PATH = "/www/wwwroot/paycensus/data/rank.json"
+_LOCAL = os.path.join(os.path.expanduser("~"), ".paycensus-gate")
+POLICY_PATH = os.environ.get("GATE_POLICY", os.path.join(_LOCAL, "policy.json"))
+AUDIT_PATH = os.environ.get("GATE_AUDIT", os.path.join(_LOCAL, "audit.jsonl"))
+APPROVALS_PATH = os.environ.get("GATE_APPROVALS", os.path.join(_LOCAL, "approvals.json"))
+RANK_PATH = os.environ.get("GATE_RANK", "")
 
 
 def _now():

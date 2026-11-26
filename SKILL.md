@@ -1,6 +1,6 @@
 ---
 name: agent-spend-gate
-description: Evaluate every payment intent against an Agent Spend Policy (ASPL v0.1) before money moves — budgets, merchant allowlists, Trust Rank floors, human approval thresholds — with a tamper-evident hash-chained audit trail kept entirely on the user's machine. Never touches funds, never sees keys. Use before ANY payment execution on x402/MPP/stablecoin/card rails, when a payment was blocked and the user asks why, and after the paycensus-trust-check skill for enforcement.
+description: Local policy check for agent spending (ASPL v0.1) — budgets, merchant allowlists, Trust Rank floors and approval thresholds, with a hash-linked audit log kept on the user's machine. Read-only: no wallet access, no key handling, no funds movement. Use before an agent spends on x402/MPP/stablecoin rails, or after paycensus-trust-check when a decision is needed.
 ---
 
 # Agent Spend Gate
@@ -45,8 +45,8 @@ Exit code: `0` = proceed allowed, `1` = do not proceed.
 |---|---|---|
 | `auto-approved` | amount ≤ auto-approve threshold | proceed with payment |
 | `approved` | human pre-approved this exact intent | proceed with payment |
-| `pending` | between thresholds — needs a human | **STOP. Do not pay.** Tell the user the reason and the `eventHash`; when they approve (see below), re-evaluate |
-| `rejected` | policy violation (budget, rail, merchant, floor, hard cap) | **Do not pay.** Tell the user the reason verbatim — never retry a rejected intent without the user changing the policy |
+| `pending` | between thresholds — needs a human | Pause and tell the user the reason and the `eventHash`; after they approve (see below), re-evaluate |
+| `rejected` | policy violation (budget, rail, merchant, floor, hard cap) | Do not continue; tell the user the reason verbatim — re-evaluate only after the user changes the policy |
 
 ## Human approvals
 
@@ -70,12 +70,11 @@ Then the agent re-runs the same evaluation command — the decision becomes
 
 ## Rules
 
-- **Never bypass the gate.** No payment execution without a gate evaluation in
-  this session, even for repeat merchants.
-- **Never invent or edit audit entries.** The audit chain is append-only;
-  every entry links to the previous one by SHA-256.
-- **Keys are none of the gate's business.** The gate never asks for, stores,
-  or transmits private keys.
-- All policy and audit data stays on the user's machine. Nothing is uploaded.
-  (Optional: the daily chain digest can be Bitcoin-anchored for third-party
-  verifiability — see https://gate.paycensus.com/spec/)
+- Run a gate evaluation for every spend intent in the session, including repeat
+  merchants.
+- The audit log is append-only; each entry links to the previous by SHA-256.
+  Do not alter existing entries.
+- The gate does not request or handle wallet keys.
+- Policy and audit data remain local; nothing is uploaded. (Optional: the daily
+  chain digest can be anchored for third-party verification — see
+  https://gate.paycensus.com/spec/)
